@@ -128,7 +128,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="sql_query_builder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sql_query_builder.h" />
