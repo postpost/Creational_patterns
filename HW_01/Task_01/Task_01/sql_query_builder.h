@@ -17,18 +17,18 @@ public:
 	const explicit SqlSelectQueryBuilder() noexcept {
 		query.rows.insert(std::make_pair("id", " "));
 	};
-	const bool BuildQuery() noexcept {
+	Query BuildQuery() noexcept {
 		std::cout << "Query built:\n";
 		if (!query.rows.empty()) {
 			std::cout << "Table " << query.table_name_ << " was built\n";
 			for (const auto& row : query.rows) {
 				std::cout << row.first << ": " << row.second << std::endl;
 			}
-			return true;
+			return query;
 		}
 		else
 			std::cout << "Table " << query.table_name_ << " is empty\n";
-		return false;
+		return query;
 	};
 
 	SqlSelectQueryBuilder& AddColumn(const std::string& col_name) noexcept {
