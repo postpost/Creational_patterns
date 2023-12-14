@@ -15,26 +15,39 @@ class SqlSelectQueryBuilder
 {
 public:
 	explicit SqlSelectQueryBuilder()  noexcept {
-		query.rows.insert(std::make_pair("id", " "));
+		query.rows.insert(std::make_pair("id", ""));
 	}
-	std::string BuildQuery() noexcept {
+	std::string BuildQuery() {
 		//static_assert(checked, " ");
 		std::cout << "Query built:\n";
 		if (!query.rows.empty()) {
-			
-			std::cout << "Table " << query.table_name_ << " was built\n";
+			for (const auto& col : query.columns_) {
+				result_string += col + ", ";
+			}
+			result_string +=" FROM " + query.table_name_ + " WHERE ";
 			for (const auto& row : query.rows) {
-				std::cout << row.first << ": " << row.second << std::endl;
+				if (!row.second.empty()) {
+					result_string += " " + row.first + "=" + row.second + " AND";
+				}
 			}
 		}
 		else {
 			throw std::runtime_error("Table is empty!\n");
 		}
-		
+		trim(result_string);
+		return result_string;
 	};
 
+	void trim(std::string& data) {
+			std::reverse(data.begin(), data.end());
+			data.erase(std::find(data.begin(), data.end(), ','));
+			std::reverse(data.begin(), data.end());
+			auto it = data.end() - 4;
+			data.erase(it, data.end());
+	}
+
 	SqlSelectQueryBuilder& AddColumn(const std::string& col_name) noexcept {
-		query.rows.insert(std::make_pair(col_name, " "));
+		query.columns_.push_back(col_name);
 		return *this;
 	};
 
@@ -70,7 +83,6 @@ public:
 		return *this;
 	};
 private:
-	std::string result_string = "";
+	std::string result_string = "SELECT ";
 	Query query;
 };
-
