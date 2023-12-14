@@ -14,16 +14,19 @@ protected:
 
 class Data{
 public:
+    ~Data() {
+          delete format_;
+    }
     enum Format {kText, kHTML, kJSON};
     virtual void saveTo(std::ofstream& file, Printable* printable_) const = 0;
     virtual Format getFormat() const = 0;
+    Format* format_{ nullptr };
  };
 
 class HTMLData :public Data {
 public:
-   // using Data::Data;
     HTMLData() {
-        new Format(Data::Format::kHTML);
+        format_= new Format(Data::Format::kHTML);
     }
     void saveTo(std::ofstream& file, Printable* printable_) const override {
         file << printable_->print();
@@ -31,41 +34,40 @@ public:
     Format getFormat() const override {
         return *format_;
     }
-private:
-    Format* format_{nullptr};
 };
 
 
 class TextData :public Data {
 public:
-    //using Data::Data;
+//using Data::Data;
+    TextData() {
+        format_ = new Format(Data::Format::kText);
+    }
     void saveTo(std::ofstream& file, Printable* printable_) const override {
         file << printable_->print();
     }
     Format getFormat() const override {
-        return format_;
+        return *format_;
     }
-private:
-    Format format_ = Format::kText;
 };
 
 class JSONData :public Data {
 public:
-   // using Data::Data;
+    JSONData() {
+        format_ = new Format(Data::Format::kJSON);
+    };
     void saveTo(std::ofstream& file, Printable* printable_) const override {
         file << printable_->print();
     }
     Format getFormat() const override {
-        return format_;
+        return *format_;
     }
-private:
-    Format format_ = Format::kJSON;
 };
 
 
 class PrintAsHTML :public Printable {
 public:
-    PrintAsHTML(const std::string& data) : Printable(data) {}
+    PrintAsHTML(const std::string& data, Data* format) : Printable(data), format_(format) {}
     std::string print() const override {
         std::cout << format_->getFormat() << std::endl; //Exception thrown: read access violation.
                                                         //this->format_ was nullptr.
@@ -111,7 +113,7 @@ int main() {
 
     Data* data = new HTMLData();
     std::ofstream fout("file_format_test");
-    Printable* print_html = new PrintAsHTML("print html data");
+    Printable* print_html = new PrintAsHTML("print html data", data);
     saveTo(fout, data, print_html);
     fout.close();
     delete data;
