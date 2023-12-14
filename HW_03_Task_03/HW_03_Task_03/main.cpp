@@ -60,12 +60,12 @@ private:
 //messages!
 class UknownMsg : public LogMessage {
 public:
-	UknownMsg(const std::string& path, const std::string& msg) : message_(msg){};
+	UknownMsg(const std::string& msg) : message_(msg){};
 	Type type() const override {
 		return Type::UKNOWN;
 	}
 	const std::string& message() const override {
-			return "0"; //?
+		return nullptr;
 	}
 private:
 	std::string message_;
@@ -78,12 +78,11 @@ public:
 	virtual ~LogHandler() = default;
 	//передаем сообщение обработчику
 	void receiveMessage(const LogMessage& msg) {
-			std::cout << "somethis wrong here\n";
 		if (handleMessage(msg)) //если сообщение обработано, то закрываем лавочку
 			return;
 		
 		if (!next_)
-			throw std::runtime_error ("Некому обработать сообщение. Извиняйте\n");
+			throw std::runtime_error ("Сообщение неподходящего типа\n");
 		next_->receiveMessage(msg); //передай другому, только не мне
 	}
 
@@ -131,33 +130,17 @@ private:
 	}
 };
 
-
-class UknownHandler : public LogHandler {
-public:
-	using LogHandler::LogHandler;
-private:
-	bool handleMessage(const LogMessage& message) override {
-		if (message.type() != message.UKNOWN)
-			return false;
-		std::cout << "Uknown: ";
-		throw std::runtime_error(message.message());
-		return true;
-	}
-};
-
-
 int main() {
+	setlocale(LC_ALL, "ru");
 	auto warning = std::make_unique<WarningHandler>(nullptr);
-	//auto error = std::make_unique<WarningHandler>(std::move(warning)); 
+	auto error = std::make_unique<WarningHandler>(std::move(warning)); 
 	auto fatal = std::make_unique<FatalErrorHandler>(std::move(warning));
-	const std::string warning_msg = "Warning!!!Zonda is coming";
 	std::string path = "file_errors_01";
-	const std::string error_msg = "Something wrong with the governments";
-	const std::string fatal_msg = "Fatal error. Program must be terminated\n";
 	try {
-		warning->receiveMessage(ErrorMsg(path, error_msg));
-		warning->receiveMessage(WarningMsg(warning_msg));
-		warning->receiveMessage(FatalErrorMsg(fatal_msg));
+		fatal->receiveMessage(ErrorMsg(path, "Something wrong with the governments\n"));
+		fatal->receiveMessage(WarningMsg("Warning!!!Zonda is coming\n"));
+		fatal->receiveMessage(FatalErrorMsg("Fatal error. Program must be terminated\n"));
+		fatal->receiveMessage(UknownMsg("Sorry. Delivery is postponed\n"));
 	}
 
 	catch (std::exception& ex) {

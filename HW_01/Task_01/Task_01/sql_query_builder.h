@@ -5,28 +5,23 @@
 #include <assert.h>
 
 struct Query {
-	//explicit Query() = default;
-    //Query(const Query&) = default;
-	//Query& operator=(const Query&) = default;
 	std::string table_name_;
 	size_t id = 0;
 	std::map<std::string, std::string> rows;
-	std::vector<std::string>& columns_;
+	std::vector<std::string> columns_;
 };
 
 class SqlSelectQueryBuilder
 {
 public:
-	//SqlSelectQueryBuilder(const SqlSelectQueryBuilder&) = default;
-	//SqlSelectQueryBuilder& operator=(const SqlSelectQueryBuilder&) = default;
 	explicit SqlSelectQueryBuilder()  noexcept {
 		query.rows.insert(std::make_pair("id", " "));
 	}
-	bool BuildQuery() noexcept {
+	std::string BuildQuery() noexcept {
 		//static_assert(checked, " ");
 		std::cout << "Query built:\n";
 		if (!query.rows.empty()) {
-			check_assert = true;
+			
 			std::cout << "Table " << query.table_name_ << " was built\n";
 			for (const auto& row : query.rows) {
 				std::cout << row.first << ": " << row.second << std::endl;
@@ -35,7 +30,7 @@ public:
 		else {
 			throw std::runtime_error("Table is empty!\n");
 		}
-		return check_assert;
+		
 	};
 
 	SqlSelectQueryBuilder& AddColumn(const std::string& col_name) noexcept {
@@ -75,7 +70,7 @@ public:
 		return *this;
 	};
 private:
-	bool check_assert = false;
+	std::string result_string = "";
 	Query query;
 };
 
