@@ -14,7 +14,7 @@ protected:
 
 class Data{
 public:
-    ~Data() {
+    virtual ~Data() {
           delete format_;
     }
     enum Format {kText, kHTML, kJSON};
